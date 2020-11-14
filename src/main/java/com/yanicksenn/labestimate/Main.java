@@ -1,4 +1,4 @@
-package com.yanicksenn.labstimate;
+package com.yanicksenn.labestimate;
 
 public class Main {
     public static void main(String[] args) {
