@@ -36,18 +36,18 @@
     <repositories>
         <repository>
             <id>gitlab.yanicksenn.com</id>
-            <url>https://gitlab.example.com/api/v4/projects/${env.CI_PROJECT_ID}/packages/maven</url>
+            <url>https://gitlab.yanicksenn.com/api/v4/projects/${env.CI_PROJECT_ID}/packages/maven</url>
         </repository>
     </repositories>
 
     <distributionManagement>
         <repository>
             <id>gitlab.yanicksenn.com</id>
-            <url>https://gitlab.example.com/api/v4/projects/${env.CI_PROJECT_ID}/packages/maven</url>
+            <url>https://gitlab.yanicksenn.com/api/v4/projects/${env.CI_PROJECT_ID}/packages/maven</url>
         </repository>
         <snapshotRepository>
             <id>gitlab.yanicksenn.com</id>
-            <url>https://gitlab.example.com/api/v4/projects/${env.CI_PROJECT_ID}/packages/maven</url>
+            <url>https://gitlab.yanicksenn.com/api/v4/projects/${env.CI_PROJECT_ID}/packages/maven</url>
         </snapshotRepository>
     </distributionManagement>
 </project>
