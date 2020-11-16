@@ -33,20 +33,22 @@
         </plugins>
     </build>
 
+    <!-- Repository -->
     <repositories>
         <repository>
-            <id>gitlab.yanicksenn.com</id>
+            <id>gitlab-maven</id>
             <url>https://gitlab.yanicksenn.com/api/v4/projects/${env.CI_PROJECT_ID}/packages/maven</url>
         </repository>
     </repositories>
 
+    <!-- Deployment -->
     <distributionManagement>
         <repository>
-            <id>gitlab.yanicksenn.com</id>
+            <id>gitlab-maven</id>
             <url>https://gitlab.yanicksenn.com/api/v4/projects/${env.CI_PROJECT_ID}/packages/maven</url>
         </repository>
         <snapshotRepository>
-            <id>gitlab.yanicksenn.com</id>
+            <id>gitlab-maven</id>
             <url>https://gitlab.yanicksenn.com/api/v4/projects/${env.CI_PROJECT_ID}/packages/maven</url>
         </snapshotRepository>
     </distributionManagement>
