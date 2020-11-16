@@ -24,29 +24,40 @@ public class ReferencePair {
         return referenceB;
     }
 
-    public double getDistance() {
+    public double getSourceDistance() {
         var p1 = Util.fromLAB(referenceA.getLabSource());
         var p2 = Util.fromLAB(referenceB.getLabSource());
         return p1.distanceTo(p2);
     }
 
-    public double getAccuracy() {
+    public double getSourceOffset() {
         var p1 = Util.fromLAB(referenceA.getLabSource());
         var p2 = Util.fromLAB(referenceB.getLabSource());
         var straight = Straight.betweenPoints(p1, p2);
         return straight.distanceTo(Util.fromLAB(labToEstimate));
     }
 
-    public double getError() {
-        return getDistance() * getAccuracy();
+    public double getSourceError() {
+        return getSourceDistance() * getSourceOffset();
+    }
+
+    public double getTargetDistance() {
+        var p1 = Util.fromLAB(referenceA.getLabTarget());
+        var p2 = Util.fromLAB(referenceB.getLabTarget());
+        return p1.distanceTo(p2);
     }
 
     public LAB getEstimate() {
-        var p1 = Util.fromLAB(referenceA.getLabSource());
-        var p2 = Util.fromLAB(referenceB.getLabSource());
-        var straight = Straight.betweenPoints(p1, p2);
-        var r = straight.stretchTo(Util.fromLAB(labToEstimate));
-        var closestPoint = straight.getPoint(r);
+        var ps1 = Util.fromLAB(referenceA.getLabSource());
+        var ps2 = Util.fromLAB(referenceB.getLabSource());
+        var straightSource = Straight.betweenPoints(ps1, ps2);
+        var quantifier = straightSource.stretchTo(Util.fromLAB(labToEstimate));
+
+        var pt1 = Util.fromLAB(referenceA.getLabTarget());
+        var pt2 = Util.fromLAB(referenceB.getLabTarget());
+        var straightTarget = Straight.betweenPoints(pt1, pt2);
+        var closestPoint = straightTarget.getPoint(quantifier);
+
         return new LAB(closestPoint.getX(), closestPoint.getY(), closestPoint.getZ());
     }
 

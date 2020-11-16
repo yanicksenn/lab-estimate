@@ -28,12 +28,17 @@ public class Main {
         var labEstimate = new LABEstimate(referenceFile);
         var referencePair = labEstimate.estimate(new LAB(l, a, b));
 
-        System.out.println(String.format("LAB 1: %s", referencePair.getReferenceA().getLabTarget()));
-        System.out.println(String.format("LAB 2: %s", referencePair.getReferenceB().getLabTarget()));
-        System.out.println(String.format("Distance: %f", referencePair.getDistance()));
-        System.out.println(String.format("Accuracy: %f", referencePair.getAccuracy()));
-        System.out.println(String.format("Error: %f", referencePair.getError()));
-        System.out.println(String.format("LAB Est: %s", referencePair.getEstimate()));
+        System.out.println(String.format("Source LAB 1: %s", referencePair.getReferenceA().getLabSource()));
+        System.out.println(String.format("Source LAB 2: %s", referencePair.getReferenceB().getLabSource()));
+        System.out.println(String.format("Source Distance: %f", referencePair.getSourceDistance()));
+        System.out.println(String.format("Source Offset: %f", referencePair.getSourceOffset()));
+        System.out.println(String.format("Source Error: %f", referencePair.getSourceError()));
+        System.out.println();
+        System.out.println(String.format("Target LAB 1: %s", referencePair.getReferenceA().getLabTarget()));
+        System.out.println(String.format("Target LAB 2: %s", referencePair.getReferenceB().getLabTarget()));
+        System.out.println(String.format("Target Distance: %f", referencePair.getTargetDistance()));
+        System.out.println();
+        System.out.println(String.format("LAB Estim.: %s", referencePair.getEstimate()));
     }
 
     private static double createAndValidateValueL(String lValue) {
