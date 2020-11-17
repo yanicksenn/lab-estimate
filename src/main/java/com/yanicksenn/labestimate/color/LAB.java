@@ -1,8 +1,8 @@
 package com.yanicksenn.labestimate.color;
 
-import com.yanicksenn.labestimate.Util;
-
 import java.util.Objects;
+
+import static java.lang.Math.*;
 
 public final class LAB {
     private final double l;
@@ -10,24 +10,6 @@ public final class LAB {
     private final double b;
 
     public LAB(double l, double a, double b) {
-        if (l > 100)
-            throw new IllegalArgumentException("l must not be greater than 100");
-
-        if (l < 0)
-            throw new IllegalArgumentException("l must not be less than 100");
-
-        if (a > 127)
-            throw new IllegalArgumentException("a must not be greater than 127");
-
-        if (a < -128)
-            throw new IllegalArgumentException("a must not be less than -128");
-
-        if (b > 127)
-            throw new IllegalArgumentException("b must not be greater than 127");
-
-        if (b < -128)
-            throw new IllegalArgumentException("b must not be less than -128");
-
         this.l = l;
         this.a = a;
         this.b = b;
@@ -45,11 +27,33 @@ public final class LAB {
         return b;
     }
 
-    public double distanceTo(LAB lab) {
-        Objects.requireNonNull(lab);
-        var p1 = Util.fromLAB(this);
-        var p2 = Util.fromLAB(lab);
-        return p1.distanceTo(p2);
+    public XYZ toXYZ(StandardIlluminant standardIlluminant) {
+        Objects.requireNonNull(standardIlluminant);
+
+        var l = getL();
+        var a = getA();
+        var b = getB();
+
+        var fy = (l + 16.0) / 116.0;
+        var fx = (a / 500.0) + fy;
+        var fz = fy - (b / 200.0);
+
+        var fx3 = pow(fx, 3.0);
+        var fz3 = pow(fz, 3.0);
+
+        var e = CIE.E;
+        var k = CIE.K;
+
+        var xr = fx3 > e ? fx3 : ((116.0 * fx) - 16.0) / k;
+        var yr = l > k * e ? pow((l + 16.0) / 116.0, 3.0) : l / k;
+        var zr = fz3 > e ? fz3 : ((116.0 * fz) - 16.0) / k;
+
+        var rw = standardIlluminant.getReferenceWhite();
+        var x = xr * rw.getX();
+        var y = yr * rw.getY();
+        var z = zr * rw.getZ();
+
+        return new XYZ(x, y, z);
     }
 
     @Override

@@ -1,6 +1,7 @@
 package com.yanicksenn.labestimate;
 
 import com.yanicksenn.labestimate.color.LAB;
+import com.yanicksenn.labestimate.color.StandardIlluminants;
 
 import java.io.File;
 import java.io.IOException;
@@ -25,20 +26,11 @@ public class Main {
         var a = createAndValidateValueA(args[2]);
         var b = createAndValidateValueB(args[3]);
 
-        var labEstimate = new LABEstimate(referenceFile);
-        var referencePair = labEstimate.estimate(new LAB(l, a, b));
+        var standardIlluminant = StandardIlluminants.Deg10.D50;
 
-        System.out.println(String.format("Source LAB 1: %s", referencePair.getReferenceA().getLabSource()));
-        System.out.println(String.format("Source LAB 2: %s", referencePair.getReferenceB().getLabSource()));
-        System.out.println(String.format("Source Distance: %f", referencePair.getSourceDistance()));
-        System.out.println(String.format("Source Offset: %f", referencePair.getSourceOffset()));
-        System.out.println(String.format("Source Error: %f", referencePair.getSourceError()));
-        System.out.println();
-        System.out.println(String.format("Target LAB 1: %s", referencePair.getReferenceA().getLabTarget()));
-        System.out.println(String.format("Target LAB 2: %s", referencePair.getReferenceB().getLabTarget()));
-        System.out.println(String.format("Target Distance: %f", referencePair.getTargetDistance()));
-        System.out.println();
-        System.out.println(String.format("LAB Estim.: %s", referencePair.getEstimate()));
+        var labEstimate = new LABEstimate(referenceFile);
+        var labToEstimate = new LAB(l, a, b);
+        labEstimate.estimate(labToEstimate, standardIlluminant);
     }
 
     private static double createAndValidateValueL(String lValue) {
