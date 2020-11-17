@@ -50,6 +50,10 @@ public class LABEstimate {
                 }
 
                 var currentReferencePair = new ReferencePair(labToEstimate, referenceA, referenceB);
+                if (!currentReferencePair.inBounds()) {
+                    continue;
+                }
+
                 if (currentReferencePair.getSourceError() >= bestReferencePair.getSourceError()) {
                     continue;
                 }

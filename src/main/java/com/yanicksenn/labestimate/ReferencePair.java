@@ -37,6 +37,13 @@ public class ReferencePair {
         return straight.distanceTo(Util.fromLAB(labToEstimate));
     }
 
+    public boolean inBounds() {
+        var p1 = Util.fromLAB(referenceA.getLabSource());
+        var p2 = Util.fromLAB(referenceB.getLabSource());
+        var straight = Straight.betweenPoints(p1, p2);
+        return straight.stretchTo(Util.fromLAB(labToEstimate)) <= 1;
+    }
+
     public double getSourceError() {
         return getSourceDistance() * getSourceOffset();
     }
@@ -48,6 +55,12 @@ public class ReferencePair {
     }
 
     public LAB getEstimate() {
+        /*var pl = Util.fromLAB(labToEstimate);
+
+        // Translate
+        var ps1 = Util.fromLAB(referenceA.getLabSource()).subtract(pl);
+        var ps2 = Util.fromLAB(referenceB.getLabSource()).subtract(pl);*/
+
         var ps1 = Util.fromLAB(referenceA.getLabSource());
         var ps2 = Util.fromLAB(referenceB.getLabSource());
         var straightSource = Straight.betweenPoints(ps1, ps2);

@@ -62,11 +62,36 @@ public class Point {
             getZ() * point.getZ();
     }
 
+    public Point invert() {
+        return new Point(
+            - getX(),
+            - getY(),
+            - getZ());
+    }
+
+    public Point signs() {
+        return new Point(
+            - (- getX() / getX()),
+            - (- getY() / getY()),
+            - (- getZ() / getZ()));
+    }
+
+    public double length() {
+        return sqrt(
+            pow(getX(), 2) +
+            pow(getY(), 2) +
+            pow(getZ(), 2));
+    }
+
     public double distanceTo(Point point) {
         return sqrt(
             pow(point.getX() - getX(), 2) +
             pow(point.getY() - getY(), 2) +
             pow(point.getZ() - getZ(), 2));
+    }
+
+    public boolean isInOppositeQuadrant(Point point) {
+        return point.signs().multiply(point.signs().invert()) == -3;
     }
 
     @Override

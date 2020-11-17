@@ -10,7 +10,11 @@ public class Straight {
         Objects.requireNonNull(a);
         Objects.requireNonNull(b);
 
-        return of(a, b.subtract(a));
+        if (a.length() <= b.length()) {
+            return of(a, b.subtract(a));
+        } else {
+            return of(b, a.subtract(b));
+        }
     }
 
     public static Straight of(Point source, Point direction) {
