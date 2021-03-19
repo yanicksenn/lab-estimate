@@ -1,9 +1,6 @@
 package com.yanicksenn.labestimate;
 
-import com.yanicksenn.labestimate.color.LAB;
-import com.yanicksenn.labestimate.color.StandardIlluminant;
-import com.yanicksenn.labestimate.color.XY;
-import com.yanicksenn.labestimate.color.XYZ;
+import com.yanicksenn.labestimate.color.*;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -33,8 +30,8 @@ public class LABEstimate {
             throw new IllegalArgumentException("references must not be empty");
     }
 
-    public void estimate(LAB labToEstimate, StandardIlluminant standardIlluminant) {
-        var inputXYZ = labToEstimate.toXYZ(standardIlluminant);
+    public void estimate(LAB inputLAB, StandardIlluminant standardIlluminant) {
+        var inputXYZ = inputLAB.toXYZ(standardIlluminant);
 
         Reference bestReference = null;
         XYZ bestXYZ = null;
@@ -62,12 +59,8 @@ public class LABEstimate {
         System.out.println("");
 
         System.out.println("Input:");
-        System.out.println(" > LAB: " + labToEstimate);
+        System.out.println(" > LAB: " + inputLAB);
         System.out.println(" > Reference White: " + standardIlluminant);
-        System.out.println("");
-
-        System.out.println("Closest reference to the input LAB:");
-        System.out.println(" > CMYK: " + bestReference.getCmyk());
         System.out.println("");
 
         System.out.println(" > Source:");
@@ -78,26 +71,32 @@ public class LABEstimate {
         System.out.println(" > Target:");
         System.out.println("    > LAB: " + bestReference.getLabTarget().toString());
         System.out.println("    > XYZ: " + bestReference.getLabTarget().toXYZ(standardIlluminant));
-        System.out.println("");
+        System.out.println();
+
+        var deltaE76 = new DeltaE76();
+
+        var delteE76_inputVsReferenceSource = deltaE76.calculate(inputLAB, bestReference.getLabSource());
+        System.out.println(" > Delta E76 (Input vs. Reference source)");
+        System.out.println("    > " + delteE76_inputVsReferenceSource);
+        System.out.println();
+
+        if (delteE76_inputVsReferenceSource > 3.0) {
+            System.err.println("    > WARNING: Delta E76 to nearest reference is large");
+            System.err.println("    > WARNING: Resulting LAB might be inaccurate");
+            System.err.println();
+        }
+
+        var deltaE76_referenceSourceVsReferenceTarget = deltaE76.calculate(bestReference.getLabSource(), bestReference.getLabTarget());
+        System.out.println(" > Delta E76 (Reference source vs. Reference target)");
+        System.out.println("    > " + deltaE76_referenceSourceVsReferenceTarget);
+        System.out.println();
 
         var sourceXYZ = bestReference.getLabSource().toXYZ(standardIlluminant);
         var targetXYZ = bestReference.getLabTarget().toXYZ(standardIlluminant);
-        var distance = sourceXYZ.distanceTo(targetXYZ);
-        System.out.println("Error:");
-        System.out.println(" > distance: " + distance);
-
-        var minXYZ = new XYZ(0, 0, 0);
-        var maxXYZ = new XYZ(1, 1, 1);
-        var maxDistance = minXYZ.distanceTo(maxXYZ);
-        System.out.println(" > percent: " + (distance / maxDistance));
 
         var ox = targetXYZ.getX() - sourceXYZ.getX();
         var oy = targetXYZ.getY() - sourceXYZ.getY();
         var oz = targetXYZ.getZ() - sourceXYZ.getZ();
-        System.out.println(" > Offset X: " + ox);
-        System.out.println(" > Offset Y: " + oy);
-        System.out.println(" > Offset Z: " + oz);
-        System.out.println("");
 
         var outputXYZ = new XYZ(
             inputXYZ.getX() + ox,
@@ -107,6 +106,11 @@ public class LABEstimate {
         var outputLAB = outputXYZ.toLAB(standardIlluminant);
         System.out.println("Output:");
         System.out.println(" > LAB: " + outputLAB);
-        System.out.println("");
+        System.out.println();
+
+        var deltaE76_inputVsOutput = deltaE76.calculate(inputLAB, outputLAB);
+        System.out.println(" > Estimated Delta E76");
+        System.out.println("    > " + Math.abs(deltaE76_inputVsOutput - deltaE76_referenceSourceVsReferenceTarget));
+        System.out.println();
     }
 }
