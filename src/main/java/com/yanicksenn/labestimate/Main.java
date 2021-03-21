@@ -18,19 +18,22 @@ public class Main {
     }
 
     private static void estimate(String[] args) throws IOException {
-        if (args.length != 4)
-            throw new IllegalArgumentException("args must be of length 4");
+        if (args.length != 4 && args.length != 5)
+            throw new IllegalArgumentException("args must be of length 4 or 5");
 
         var referenceFile = new File(args[0]);
         var l = createAndValidateValueL(args[1]);
         var a = createAndValidateValueA(args[2]);
         var b = createAndValidateValueB(args[3]);
+        var verbose = args.length == 5 && args[4].equals("verbose");
 
         var standardIlluminant = StandardIlluminants.Deg10.D50;
 
         var labEstimate = new LABEstimate(referenceFile);
         var labToEstimate = new LAB(l, a, b);
-        labEstimate.estimate(labToEstimate, standardIlluminant);
+
+        var params = new EstimateParams(labToEstimate, standardIlluminant, verbose);
+        labEstimate.estimate(params);
     }
 
     private static double createAndValidateValueL(String lValue) {

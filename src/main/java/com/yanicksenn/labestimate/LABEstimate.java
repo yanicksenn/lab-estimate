@@ -2,10 +2,7 @@ package com.yanicksenn.labestimate;
 
 import com.yanicksenn.labestimate.color.*;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -30,11 +27,14 @@ public class LABEstimate {
             throw new IllegalArgumentException("references must not be empty");
     }
 
-    public void estimate(LAB inputLAB, StandardIlluminant standardIlluminant) {
-        var inputXYZ = inputLAB.toXYZ(standardIlluminant);
+    public void estimate(EstimateParams params) {
+        Objects.requireNonNull(params, "params must not be null");
+        var inputLAB = Objects.requireNonNull(params.getLab(), "lab must not be null");
+        var standardIlluminant = Objects.requireNonNull(params.getStandardIlluminant(), "standardIlluminant must not be null");
 
-        Reference bestReference = null;
-        XYZ bestXYZ = null;
+        var inputXYZ = inputLAB.toXYZ(standardIlluminant);
+        var bestReference = (Reference) null;
+        var bestXYZ = (XYZ) null;
 
         for (var currentReference : references) {
             if (bestReference == null) {
@@ -56,40 +56,42 @@ public class LABEstimate {
             bestXYZ = bestReference.getLabSource().toXYZ(standardIlluminant);
         }
 
-        System.out.println("");
+        var verbose = params.isVerbose();
+        var printer = new Printer(System.out, verbose);
 
-        System.out.println("Input:");
-        System.out.println(" > LAB: " + inputLAB);
-        System.out.println(" > Reference White: " + standardIlluminant);
-        System.out.println("");
+        printer.verboseln();
+        printer.verboseln("Input:");
+        printer.verboseln(" > LAB: " + inputLAB);
+        printer.verboseln(" > Reference White: " + standardIlluminant);
+        printer.verboseln();
 
-        System.out.println(" > Source:");
-        System.out.println("    > LAB: " + bestReference.getLabSource().toString());
-        System.out.println("    > XYZ: " + bestReference.getLabSource().toXYZ(standardIlluminant));
-        System.out.println("");
+        printer.verboseln(" > Source:");
+        printer.verboseln("    > LAB: " + bestReference.getLabSource().toString());
+        printer.verboseln("    > XYZ: " + bestReference.getLabSource().toXYZ(standardIlluminant));
+        printer.verboseln();
 
-        System.out.println(" > Target:");
-        System.out.println("    > LAB: " + bestReference.getLabTarget().toString());
-        System.out.println("    > XYZ: " + bestReference.getLabTarget().toXYZ(standardIlluminant));
-        System.out.println();
+        printer.verboseln(" > Target:");
+        printer.verboseln("    > LAB: " + bestReference.getLabTarget().toString());
+        printer.verboseln("    > XYZ: " + bestReference.getLabTarget().toXYZ(standardIlluminant));
+        printer.verboseln();
 
         var deltaE76 = new DeltaE76();
 
         var delteE76_inputVsReferenceSource = deltaE76.calculate(inputLAB, bestReference.getLabSource());
-        System.out.println(" > Delta E76 (Input vs. Reference source)");
-        System.out.println("    > " + delteE76_inputVsReferenceSource);
-        System.out.println();
+        printer.verboseln(" > Delta E76 (Input vs. Reference source)");
+        printer.verboseln("    > " + delteE76_inputVsReferenceSource);
+        printer.verboseln();
 
         if (delteE76_inputVsReferenceSource > 3.0) {
-            System.err.println("    > WARNING: Delta E76 to nearest reference is large");
-            System.err.println("    > WARNING: Resulting LAB might be inaccurate");
-            System.err.println();
+            printer.verboseln("    > WARNING: Delta E76 to nearest reference is large");
+            printer.verboseln("    > WARNING: Resulting LAB might be inaccurate");
+            printer.verboseln();
         }
 
         var deltaE76_referenceSourceVsReferenceTarget = deltaE76.calculate(bestReference.getLabSource(), bestReference.getLabTarget());
-        System.out.println(" > Delta E76 (Reference source vs. Reference target)");
-        System.out.println("    > " + deltaE76_referenceSourceVsReferenceTarget);
-        System.out.println();
+        printer.verboseln(" > Delta E76 (Reference source vs. Reference target)");
+        printer.verboseln("    > " + deltaE76_referenceSourceVsReferenceTarget);
+        printer.verboseln();
 
         var sourceXYZ = bestReference.getLabSource().toXYZ(standardIlluminant);
         var targetXYZ = bestReference.getLabTarget().toXYZ(standardIlluminant);
@@ -104,13 +106,41 @@ public class LABEstimate {
             inputXYZ.getZ() + oz);
 
         var outputLAB = outputXYZ.toLAB(standardIlluminant);
-        System.out.println("Output:");
-        System.out.println(" > LAB: " + outputLAB);
-        System.out.println();
-
         var deltaE76_inputVsOutput = deltaE76.calculate(inputLAB, outputLAB);
-        System.out.println(" > Estimated Delta E76");
-        System.out.println("    > " + Math.abs(deltaE76_inputVsOutput - deltaE76_referenceSourceVsReferenceTarget));
-        System.out.println();
+        printer.verboseln(" > Estimated Delta E76");
+        printer.verboseln("    > " + Math.abs(deltaE76_inputVsOutput - deltaE76_referenceSourceVsReferenceTarget));
+        printer.verboseln();
+
+        printer.verboseln(" > Estimated LAB");
+        printer.println(outputLAB.toString());
+        printer.println();
+    }
+
+    private class Printer {
+        private final PrintStream source;
+        private final boolean verbose;
+
+        public Printer(PrintStream source, boolean verbose) {
+            this.source = source;
+            this.verbose = verbose;
+        }
+
+        public void verboseln(String string) {
+            if (verbose)
+                this.source.println(string);
+        }
+
+        public void verboseln() {
+            if (verbose)
+                this.source.println();
+        }
+
+        public void println(String string) {
+            this.source.println(string);
+        }
+
+        public void println() {
+            this.source.println();
+        }
     }
 }
